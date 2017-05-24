@@ -7,8 +7,22 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <local:LatexDocument>
-            \sym h \it x, y \sym i
-        </local:LatexDocument>
+        <local:LatexViewer>
+            <!--            e^{\pi i}=-1\{\textrm{in the complex plane}-->
+            A \  \alpha \quad N \  \nu \\
+            B \  \beta \quad  \Xi \  \xi \\
+            \Gamma \  \gamma \quad O \  \omicron \\
+            \Delta \  \delta \quad  \Pi \  \pi \\
+            E \  \epsilon \quad P \  \rho \\
+            Z \  \zeta \quad  \Sigma \  \sigma \\
+            H \  \eta \quad T \  \tau \\
+            \Theta \  \theta \quad Y \  \upsilon \\
+            I \  \iota \quad  \Phi \  \phi \\
+            K \  \kappa \quad X \  \chi \\
+            \Lambda \  \lambda \quad  \Psi \  \psi \\
+            M \  \mu \quad  \Omega \  \omega
+
+
+        </local:LatexViewer>
     </Grid>
 </Window>
