@@ -7,27 +7,14 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <local:LatexViewer FontSize="80">
-<!--            e^{\pi i}=-1\{\textrm{in the complex plane} \\\\-->
-            
+        <local:LatexViewer FontSize="40">
+            e^{\pi i}=-1\quad\{\textrm{in the complex plane} \\\\
+
             a^x+a^y=a^{x+y} \\
-            
-            log_ax^n=nlog_ax \\
-            
-            M^1_2
-            
-<!--            A \  \alpha \quad N \  \nu \\-->
-<!--            B \  \beta \quad  \Xi \  \xi \\-->
-<!--            \Gamma \  \gamma \quad O \  \omicron \\-->
-<!--            \Delta \  \delta \quad  \Pi \  \pi \\-->
-<!--            E \  \epsilon \quad P \  \rho \\-->
-<!--            Z \  \zeta \quad  \Sigma \  \sigma \\-->
-<!--            H \  \eta \quad T \  \tau \\-->
-<!--            \Theta \  \theta \quad Y \  \upsilon \\-->
-<!--            I \  \iota \quad  \Phi \  \phi \\-->
-<!--            K \  \kappa \quad X \  \chi \\-->
-<!--            \Lambda \  \lambda \quad  \Psi \  \psi \\-->
-<!--            M \  \mu \quad  \Omega \  \omega-->
+            log \sub b x \sup {n} = n \, log_b x \\ <!--adding brackets double counts some space-->
+            log \sub b x \sup n = n \, log_{b} x \\
+
+            M^1_2 <!-- need to fix height calculations and adjust baseline accordingly -->
 
         </local:LatexViewer>
     </Grid>

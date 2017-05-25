@@ -67,29 +67,34 @@ namespace LatexEditor.Parser.Segments
                         val = new LatexGlyph(CmFont.Serif, LatexParser.GreekLetters[head.Value]);
                     if (LatexParser.Spaces.ContainsKey(head.Value))
                         val = new LatexSpace(LatexParser.Spaces[head.Value]);
-                    if (head.Value == "^")
+                    switch (head.Value)
                     {
-                        if (PopLatexSegment(tokens, out var content))
-                        {
-                            val = content;
-                            val.Size *= 0.7;
-                            val.Offset = new Point(val.Offset.X, val.Offset.Y + 0.45);
-                        }
-                    }
-                    if (head.Value == "_")
-                    {
-                        if (PopLatexSegment(tokens, out var content))
-                        {
-                            val = content;
-                            val.Size *= 0.7;
-                            val.Offset = new Point(val.Offset.X, val.Offset.Y - 0.45);
-                        }
+                        case "^":
+                        case "sup":
+                            if (PopLatexSegment(tokens, out var content))
+                            {
+                                val = content;
+                                val.Size *= 0.7;
+                                val.Offset = new Point(val.Offset.X, val.Offset.Y + 0.45);
+                            }
+                            break;
+                        case "_":
+                        case "sub":
+                            if (PopLatexSegment(tokens, out content))
+                            {
+                                val = content;
+                                val.Size *= 0.7;
+                                val.Offset = new Point(val.Offset.X, val.Offset.Y - 0.45);
+                            }
+                            break;
                     }
                     break;
 
                 case "escape":
                     if (head.Value == "\\")
                         val = new LatexReturn();
+                    else
+                        val = new LatexGlyph(CmFont.Serif, head.Value[0]);
                     break;
             }
 
