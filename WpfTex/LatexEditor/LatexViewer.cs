@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
-using LatexEditor.Fonts;
-using LatexEditor.Parser;
 
 namespace LatexEditor
 {
@@ -48,7 +41,7 @@ namespace LatexEditor
 
             if (string.IsNullOrEmpty(Content)) return;
 
-            var glyphInfoList = LatexParser.ToGlyphInfos(Content);
+            var glyphInfoList = Parser.Parser.ToGlyphInfos(Content);
 
             var gtfGroups = glyphInfoList.GroupBy(gi => gi.Gtf);
             foreach (var gtfGroup in gtfGroups)

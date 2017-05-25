@@ -1,9 +1,8 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 using JetBrains.Annotations;
 using LatexEditor.Fonts;
 
-namespace LatexEditor.Parser
+namespace LatexEditor.Parser.Segments
 {
     public abstract class LatexSegment
     {
@@ -42,10 +41,10 @@ namespace LatexEditor.Parser
                 val = new LatexText(CmFont.SerifItalic, head.Value);
             if (head.TokenName == "command")
             {
-                if (LatexParser.GreekLetters.ContainsKey(head.Value))
-                    val = new LatexText(CmFont.SerifItalic, LatexParser.GreekLetters[head.Value]);
-                if (LatexParser.Spaces.ContainsKey(head.Value))
-                    val = new LatexSpace(LatexParser.Spaces[head.Value]);
+                if (Parser.GreekLetters.ContainsKey(head.Value))
+                    val = new LatexText(CmFont.SerifItalic, Parser.GreekLetters[head.Value]);
+                if (Parser.Spaces.ContainsKey(head.Value))
+                    val = new LatexSpace(Parser.Spaces[head.Value]);
                 if (head.Value == "^")
                     if (PopLatexSegment(tokens, out var content))
                     {
@@ -64,9 +63,13 @@ namespace LatexEditor.Parser
             if (head.TokenName == "escape")
                 if (head.Value == "\\")
                     val = new LatexReturn(1);
-            if (head.TokenName == "open")
+            if (head.TokenName == "open") 
             {
-                var segments = new List<LatexSegment>();
+                // todo: fix incorrect glyph placement within {}
+                // Should create a LatexGlyph: LatexSegment, and change LatexSegment.Glyphs 
+                // to be of LatexGlyphs.Then, ON ITERATION, not creation, compute the altered positions of
+                // the LatexGlyphs and create the GlyphRuns from that.
+              var segments = new List<LatexSegment>();
                 while (tokens.Peek().TokenName != "close")
                     if (PopLatexSegment(tokens, out var content))
                         segments.Add(content);
@@ -78,24 +81,4 @@ namespace LatexEditor.Parser
         }
     }
 
-    public class LatexSuper : LatexSegment
-    {
-        public override IEnumerable<GlyphInfo> Glyphs => Content.Glyphs;
-
-        public override double RelAdvWidth => Content.RelAdvWidth;
-        public override double RelAdvHeight => Content.RelAdvHeight;
-
-        public LatexSegment Content { get; set; }
-
-        public LatexSuper(LatexSegment content)
-        {
-            Content = content;
-
-            foreach (var gi in Content.Glyphs)
-            {
-                gi.RelativeOffset.Y += 1;
-                gi.RelativeSize *= 0.5;
-            }
-        }
-    }
 }

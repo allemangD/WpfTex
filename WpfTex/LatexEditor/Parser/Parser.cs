@@ -1,12 +1,12 @@
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Windows.Navigation;
 using LatexEditor.Fonts;
+using LatexEditor.Parser.Segments;
 
 namespace LatexEditor.Parser
 {
-    public static class LatexParser
+    public static class Parser
     {
+        // todo: move these tables to an environment class
         private static readonly Lexer LatexLexer = new Lexer()
         {
             new TokenDescriptor("whitespace", @"\s+"),

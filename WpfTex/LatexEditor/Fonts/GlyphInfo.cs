@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Media;
-using JetBrains.Annotations;
 
 namespace LatexEditor.Fonts
 {

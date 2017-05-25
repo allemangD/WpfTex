@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Windows;
 using LatexEditor.Fonts;
 
-namespace LatexEditor.Parser
+namespace LatexEditor.Parser.Segments
 {
     public class LatexText : LatexSegment
     {
