@@ -10,7 +10,11 @@
         <local:LatexViewer FontSize="80">
 <!--            e^{\pi i}=-1\{\textrm{in the complex plane} \\\\-->
             
-            b^x+b^y=b^{x+y}
+            a^x+a^y=a^{x+y} \\
+            
+            log_ax^n=nlog_ax \\
+            
+            M^1_2
             
 <!--            A \  \alpha \quad N \  \nu \\-->
 <!--            B \  \beta \quad  \Xi \  \xi \\-->

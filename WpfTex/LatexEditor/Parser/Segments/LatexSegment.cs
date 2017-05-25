@@ -76,6 +76,15 @@ namespace LatexEditor.Parser.Segments
                             val.Offset = new Point(val.Offset.X, val.Offset.Y + 0.45);
                         }
                     }
+                    if (head.Value == "_")
+                    {
+                        if (PopLatexSegment(tokens, out var content))
+                        {
+                            val = content;
+                            val.Size *= 0.7;
+                            val.Offset = new Point(val.Offset.X, val.Offset.Y - 0.45);
+                        }
+                    }
                     break;
 
                 case "escape":
