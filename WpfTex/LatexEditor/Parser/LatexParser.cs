@@ -4,14 +4,14 @@ using LatexEditor.Parser.Segments;
 
 namespace LatexEditor.Parser
 {
-    public static class Parser
+    public static class LatexParser
     {
         // todo: move these tables to an environment class
         private static readonly Lexer LatexLexer = new Lexer()
         {
             new TokenDescriptor("whitespace", @"\s+"),
             new TokenDescriptor("escape", @"\\([\#\$\%\^\&_\{\}\~\\])", 1),
-            new TokenDescriptor("command", @"\\([^\d\s\\]+|[\ ])", 1),
+            new TokenDescriptor("command", @"\\([^\d\s\\\#\$\%\^\&_{}]+|[\ ])", 1),
             new TokenDescriptor("command", @"[\#\$\%\^\&_]"),
             new TokenDescriptor("number", @"\d"),
             new TokenDescriptor("open", @"\{"),
@@ -73,12 +73,6 @@ namespace LatexEditor.Parser
             ["qquad"] = 4,
         };
 
-        public static IEnumerable<GlyphInfo> ToGlyphInfos(string latex) => ToGlyphInfos(LatexLexer.Tokenize(latex));
-
-        private static IEnumerable<GlyphInfo> ToGlyphInfos(IEnumerable<Token> tokens)
-        {
-            var lss = LatexSegment.ToLatexSegment(tokens);
-            return lss.Glyphs;
-        }
+        public static IEnumerable<Token> Tokenize(string latex) => LatexLexer.Tokenize(latex);
     }
 }

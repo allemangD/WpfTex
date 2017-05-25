@@ -67,7 +67,7 @@
     </Compile>
     <Compile Include="Fonts\CmManager.cs" />
     <Compile Include="Fonts\CmFont.cs" />
-    <Compile Include="Fonts\GlyphInfo.cs" />
+    <Compile Include="Fonts\GlyphDescriptor.cs" />
     <Compile Include="LatexDocument.cs" />
     <Compile Include="LatexViewer.cs" />
     <Compile Include="MainWindow.xaml.cs">
@@ -76,14 +76,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Parser\Segments\LatexNull.cs" />
-    <Compile Include="Parser\Parser.cs" />
-    <Compile Include="Parser\Segments\LatexReturn.cs" />
-    <Compile Include="Parser\Segments\LatexRun.cs" />
+    <Compile Include="Parser\LatexParser.cs" />
     <Compile Include="Parser\Segments\LatexSegment.cs" />
-    <Compile Include="Parser\Segments\LatexSpace.cs" />
-    <Compile Include="Parser\Segments\LatexSuper.cs" />
-    <Compile Include="Parser\Segments\LatexText.cs" />
     <Compile Include="Parser\Lexer.cs" />
     <Compile Include="Parser\Token.cs" />
     <Compile Include="Parser\TokenDescriptor.cs" />

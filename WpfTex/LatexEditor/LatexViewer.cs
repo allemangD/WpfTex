@@ -4,6 +4,9 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
+using System.Windows.Media.TextFormatting;
+using LatexEditor.Parser;
+using LatexEditor.Parser.Segments;
 
 namespace LatexEditor
 {
@@ -36,30 +39,32 @@ namespace LatexEditor
 
         protected override void OnRender(DrawingContext dc)
         {
-            Debug.WriteLine(dc, nameof(LatexViewer));
-            Debug.WriteLine(dc.GetType(), nameof(LatexViewer));
-
             if (string.IsNullOrEmpty(Content)) return;
 
-            var glyphInfoList = Parser.Parser.ToGlyphInfos(Content);
+            var seg = LatexSegment.ToLatexSegment(LatexParser.Tokenize(Content));
 
-            var gtfGroups = glyphInfoList.GroupBy(gi => gi.Gtf);
-            foreach (var gtfGroup in gtfGroups)
+            var gds = seg.GlyphDescriptors.ToList();
+
+            var tfGroups = gds.GroupBy(gd => gd.Typeface);
+            foreach (var tfGroup in tfGroups)
             {
-                var gtf = gtfGroup.Key;
+                var tf = tfGroup.Key;
 
-                var sizeGroups = gtfGroup.GroupBy(gi => gi.RelativeSize);
+                var sizeGroups = tfGroup.GroupBy(gd => gd.Size);
                 foreach (var sizeGroup in sizeGroups)
                 {
                     var size = sizeGroup.Key;
 
-                    var glyphs = sizeGroup.Select(gi => gi.Index).ToList();
-                    var advanceWidths = new double[glyphs.Count]; // all zero - position based only on offset
-                    var offsets = sizeGroup.Select(gi => new Point(gi.Offset.X * FontSize, gi.Offset.Y * FontSize))
+                    var glyphs = sizeGroup.Select(gd => gd.Index).ToList();
+                    var advWidths = new double[glyphs.Count]; // base only on offset
+                    var offsets = sizeGroup.Select(gd => gd.Offset)
+                        .Select(o => new Point(o.X * FontSize, o.Y * FontSize))
                         .ToList();
-                    var gr = new GlyphRun(gtf, 0, false, size * FontSize,
-                        glyphs, new Point(0, FontSize), advanceWidths,
-                        offsets, null, null, null, null, null);
+                    var gr = new GlyphRun(
+                        tf, 0, false, size * FontSize,
+                        glyphs, new Point(0, FontSize), advWidths,
+                        offsets, null, null, null, null, null
+                    );
 
                     dc.DrawGlyphRun(Brushes.Black, gr);
                 }
