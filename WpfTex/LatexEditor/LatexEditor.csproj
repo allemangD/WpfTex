@@ -76,7 +76,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Parser\LatexNull.cs" />
     <Compile Include="Parser\LatexParser.cs" />
+    <Compile Include="Parser\LatexReturn.cs" />
+    <Compile Include="Parser\LatexRun.cs" />
+    <Compile Include="Parser\LatexSegment.cs" />
+    <Compile Include="Parser\LatexSpace.cs" />
+    <Compile Include="Parser\LatexText.cs" />
     <Compile Include="Parser\Lexer.cs" />
     <Compile Include="Parser\Token.cs" />
     <Compile Include="Parser\TokenDescriptor.cs" />

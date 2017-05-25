@@ -41,83 +41,6 @@ namespace LatexEditor
             set => SetValue(FontSizeProperty, value);
         }
 
-        protected List<GlyphInfo> Parse(string latex)
-        {
-            var x = 0d;
-            var y = 0d;
-            var font = CmFont.SerifItalic;
-            var size = FontSize;
-
-            var glyphs = new List<GlyphInfo>(latex.Length);
-
-            var state = new Stack<string>();
-            state.Push("-");
-
-            while (latex.Length > 0)
-            {
-                var s = state.Peek();
-
-                if (s == "cmd")
-                {
-                    state.Pop();
-                    var m = Regex.Match(latex, @"([a-z]+)(?=[^a-z]|$)", RegexOptions.IgnoreCase);
-                    if (m.Index == 0)
-                    {
-                        var cmd = latex.Substring(0, m.Groups[1].Length);
-                        switch (cmd)
-                        {
-                            case "it":
-                                font = CmFont.SerifItalic;
-                                break;
-                            case "sym":
-                                font = CmFont.Symbols;
-                                break;
-                            case "rm":
-                                font = CmFont.Serif;
-                                break;
-                            case "sup":
-                                size = FontSize * 0.4;
-                                y = FontSize * (1 - 0.4);
-                                break;
-                            case "sub":
-                                size = FontSize * 0.5;
-                                y = -FontSize * 0.5 * 0.5;
-                                break;
-                            default:
-                                continue;
-                        }
-                        latex = latex.Substring(m.Length).TrimStart(' ');
-                    }
-                    else
-                    {
-                        latex = latex.Substring(1);
-                    }
-                }
-                else
-                {
-                    if (latex.StartsWith("\\"))
-                    {
-                        latex = latex.Substring(1);
-
-                        state.Push("cmd");
-                    }
-                    else
-                    {
-                        var chr = latex[0];
-                        latex = latex.Substring(1);
-
-                        var gtf = font.GlyphTypeface();
-                        var point = new Point(x, y);
-                        var gi = new GlyphInfo(font, chr, size, point);
-                        x += gtf.AdvanceWidths[gi.Index] * size;
-                        glyphs.Add(gi);
-                    }
-                }
-            }
-
-            return glyphs;
-        }
-
         protected override void OnRender(DrawingContext dc)
         {
             Debug.WriteLine(dc, nameof(LatexViewer));
@@ -125,22 +48,23 @@ namespace LatexEditor
 
             if (string.IsNullOrEmpty(Content)) return;
 
-            var glyphInfoList = LatexParser.Parse(Content);
+            var glyphInfoList = LatexParser.ToGlyphInfos(Content);
 
             var gtfGroups = glyphInfoList.GroupBy(gi => gi.Gtf);
             foreach (var gtfGroup in gtfGroups)
             {
                 var gtf = gtfGroup.Key;
 
-                var sizeGroups = gtfGroup.GroupBy(gi => gi.Size);
+                var sizeGroups = gtfGroup.GroupBy(gi => gi.RelativeSize);
                 foreach (var sizeGroup in sizeGroups)
                 {
                     var size = sizeGroup.Key;
 
                     var glyphs = sizeGroup.Select(gi => gi.Index).ToList();
-                    var advanceWidths = new double[glyphs.Count];
-                    var offsets = sizeGroup.Select(gi => gi.Offset).ToList();
-                    var gr = new GlyphRun(gtf, 0, false, size,
+                    var advanceWidths = new double[glyphs.Count]; // all zero - position based only on offset
+                    var offsets = sizeGroup.Select(gi => new Point(gi.Offset.X * FontSize, gi.Offset.Y * FontSize))
+                        .ToList();
+                    var gr = new GlyphRun(gtf, 0, false, size * FontSize,
                         glyphs, new Point(0, FontSize), advanceWidths,
                         offsets, null, null, null, null, null);
 

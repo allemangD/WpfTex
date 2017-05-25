@@ -1,30 +1,36 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
+using JetBrains.Annotations;
 
 namespace LatexEditor.Fonts
 {
     public class GlyphInfo
     {
         public CmFont Font;
-        public Point Offset;
-        public double Size;
-        private int Char;
+        public double RelativeSize;
+        public int Char;
+        public Point RelativeOffset;
+        public Point BaselineOrigin;
 
         public GlyphTypeface Gtf => Font.GlyphTypeface();
 
-        /// <summary>
-        /// Index of this glyph within the GlyphTypeface. 
-        /// </summary>
-        /// <exception cref="KeyNotFoundException">Thrown if <see cref="Font"/> does not have a glyph for char <see cref="Char"/></exception>
         public ushort Index => Gtf.CharacterToGlyphMap[Char];
 
-        public GlyphInfo(CmFont font, int character, double size, Point offset)
+        public double RelAdvWidth => Gtf.AdvanceWidths[Index];
+        public double RelAdvHeight => Gtf.AdvanceHeights[Index];
+
+        public Point Offset => new Point(
+            BaselineOrigin.X + RelativeOffset.X * RelativeSize,
+            BaselineOrigin.Y + RelativeOffset.Y * RelativeSize);
+
+        public GlyphInfo(CmFont font, int c, Point relativeOffset, Point baselineOrigin, double relativeSize = 1)
         {
             Font = font;
-            Char = character;
-            Size = size;
-            Offset = offset;
+            RelativeSize = relativeSize;
+            RelativeOffset = relativeOffset;
+            BaselineOrigin = baselineOrigin;
+            Char = c;
         }
     }
 }

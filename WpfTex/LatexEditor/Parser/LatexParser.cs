@@ -1,5 +1,6 @@
 using System.Collections.Generic;
-using System.Windows;
+using System.Runtime.CompilerServices;
+using System.Windows.Navigation;
 using LatexEditor.Fonts;
 
 namespace LatexEditor.Parser
@@ -18,7 +19,7 @@ namespace LatexEditor.Parser
             new TokenDescriptor("letter", @"[\S]"), // nearly catch-all for uncaptured symbols
         };
 
-        private static readonly Dictionary<string, int> greekLetters = new Dictionary<string, int>
+        internal static readonly Dictionary<string, int> GreekLetters = new Dictionary<string, int>
         {
             ["alpha"] = 0x03b1,
             ["beta"] = 0x03b2,
@@ -45,19 +46,22 @@ namespace LatexEditor.Parser
             ["psi"] = 0x03c8,
             ["omega"] = 0x03c9,
 
-            ["Gamma"]   = 0x0393,
-            ["Delta"]   = 0x0394,
-            ["Theta"]   = 0x0398,
-            ["Lambda"]  = 0x039b,
-            ["Xi"]      = 0x039e,
-            ["Pi"]      = 0x03a0,
-            ["Sigma"]   = 0x03a3,
-            ["Phi"]     = 0x03a6,
-            ["Psi"]     = 0x03a8,
-            ["Omega"]   = 0x03a9,
+            // Alpha Beta Epsilon Zeta Eta Iota Kappa Mu Nu 
+            // Omicron Rho Tau and Upsilon all denoted by
+            // Latin symbols A B E Z H I K M N O P T and Y
+            ["Gamma"] = 0x0393,
+            ["Delta"] = 0x0394,
+            ["Theta"] = 0x0398,
+            ["Lambda"] = 0x039b,
+            ["Xi"] = 0x039e,
+            ["Pi"] = 0x03a0,
+            ["Sigma"] = 0x03a3,
+            ["Phi"] = 0x03a6,
+            ["Psi"] = 0x03a8,
+            ["Omega"] = 0x03a9,
         };
 
-        private static readonly Dictionary<string, double> spaces = new Dictionary<string, double>
+        internal static readonly Dictionary<string, double> Spaces = new Dictionary<string, double>
         {
             [","] = 0.16666,
             ["!"] = -0.16666,
@@ -69,57 +73,12 @@ namespace LatexEditor.Parser
             ["qquad"] = 4,
         };
 
-        public static IEnumerable<GlyphInfo> Parse(string latex) => Parse(LatexLexer.Tokenize(latex));
+        public static IEnumerable<GlyphInfo> ToGlyphInfos(string latex) => ToGlyphInfos(LatexLexer.Tokenize(latex));
 
-        private static IEnumerable<GlyphInfo> Parse(IEnumerable<Token> tokens)
+        private static IEnumerable<GlyphInfo> ToGlyphInfos(IEnumerable<Token> tokens)
         {
-            var tokenQ = new Queue<Token>(tokens);
-            var glyphs = new List<GlyphInfo>();
-
-            const double size = 20;
-            var x = 0d;
-            var y = 0d;
-
-            void AddGlyph(CmFont font, int c)
-            {
-                glyphs.Add(new GlyphInfo(font, c, size, new Point(x * size, y * size)));
-                var gtf = font.GlyphTypeface();
-                var idx = gtf.CharacterToGlyphMap[c];
-                x += gtf.AdvanceWidths[idx];
-            }
-
-            while (tokenQ.Count > 0)
-            {
-                var token = tokenQ.Dequeue();
-                var val = token.Value;
-                switch (token.TokenName)
-                {
-                    case "letter":
-                        AddGlyph(CmFont.SerifItalic, val[0]);
-                        break;
-                    case "number":
-                        AddGlyph(CmFont.Serif, val[0]);
-                        break;
-                    case "command":
-                        if (greekLetters.ContainsKey(val))
-                            AddGlyph(CmFont.SerifItalic, greekLetters[val]);
-                        else if (spaces.ContainsKey(val))
-                            x += spaces[val];
-                        else
-                            foreach (var c in token.CapturedString)
-                                AddGlyph(CmFont.SerifItalic, c);
-                        break;
-                    case "escape":
-                        if (val == "\\")
-                        {
-                            x = 0;
-                            y -= 1;
-                        }
-                        break;
-                }
-            }
-
-            return glyphs;
+            var lss = LatexSegment.ToLatexSegment(tokens);
+            return lss.Glyphs;
         }
     }
 }
