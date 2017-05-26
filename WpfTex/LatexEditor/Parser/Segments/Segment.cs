@@ -50,7 +50,7 @@ namespace LatexEditor.Parser.Segments
                 return new GlyphSegment(CmFont.Serif, tok.Value[0]);
             if (tok.TokenName == "open")
             {
-                var seg = new NullSegment();
+                var seg = new Run();
                 var i = index + 1;
                 var total = 1;
                 while (true)
@@ -85,7 +85,7 @@ namespace LatexEditor.Parser.Segments
                         return null;
                     numTokens = n + 1;
 
-                    Segment sub = new NullSegment();
+                    Segment sub = new Run();
 
                     if (index + numTokens < _tokens.Count)
                     {
@@ -111,7 +111,7 @@ namespace LatexEditor.Parser.Segments
                         return null;
                     numTokens = n + 1;
 
-                    Segment sup = new NullSegment();
+                    Segment sup = new Run();
 
                     if (index + numTokens < _tokens.Count)
                     {
@@ -136,9 +136,9 @@ namespace LatexEditor.Parser.Segments
                     return new Return();
             }
             if (tok.TokenName == "whitespace")
-                return new NullSegment();
+                return new Run();
 
-            return new NullSegment(_tokens[index].Value.Select(c => new GlyphSegment(CmFont.Serif, c)));
+            return new Run(_tokens[index].Value.Select(c => new GlyphSegment(CmFont.Serif, c)));
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -149,8 +149,6 @@ namespace LatexEditor.Parser.Segments
 
     public abstract class Segment
     {
-        public List<Segment> Contents { get; } = new List<Segment>();
-
         public abstract double Width { get; }
         public abstract double Height { get; }
 
@@ -159,36 +157,21 @@ namespace LatexEditor.Parser.Segments
 
         public override string ToString()
         {
-            return $"{GetType().Name}: [{string.Join(", ", Contents.Select(c => "{" + c + "}"))}]";
+            return GetType().Name;
         }
 
-        public virtual IEnumerable<GlyphDescriptor> GlyphDescriptors
+        protected GlyphDescriptor Localized(GlyphDescriptor gd) => Localized(gd, 0, 0);
+
+        protected GlyphDescriptor Localized(GlyphDescriptor gd, double x, double y)
         {
-            get
-            {
-                var o_x = 0d;
-                var o_y = 0d;
-                foreach (var seg in Contents)
-                {
-                    if (seg is Return)
-                    {
-                        o_x = 0;
-                        o_y -= Size;
-                        continue;
-                    }
-                    foreach (var gd in seg.GlyphDescriptors)
-                    {
-                        var cp = gd;
-                        cp.Size *= Size;
-                        cp.Offset.X += o_x + Offset.X;
-                        cp.Offset.Y += o_y + Offset.Y;
-                        yield return cp;
-                    }
-
-                    o_x += seg.Width * Size;
-                }
-            }
+            // value type, just mutate the parameter
+            gd.Size *= Size;
+            gd.Offset.X += Offset.X + x;
+            gd.Offset.Y += Offset.Y + y;
+            return gd;
         }
+
+        public abstract IEnumerable<GlyphDescriptor> GlyphDescriptors { get; }
     }
 
     public class GlyphSegment : Segment
@@ -214,28 +197,23 @@ namespace LatexEditor.Parser.Segments
 
         public override IEnumerable<GlyphDescriptor> GlyphDescriptors
         {
-            get
-            {
-                var cp = _glyphDescriptor;
-                cp.Size *= Size;
-                cp.Offset.X += Offset.X;
-                cp.Offset.Y += Offset.Y;
-                yield return cp;
-            }
+            get { yield return Localized(_glyphDescriptor); }
         }
     }
 
+    // todo: should be able to implement Return through Space.
     public class Return : Segment
     {
         public override double Width => 0;
         public override double Height => 0;
+        public override IEnumerable<GlyphDescriptor> GlyphDescriptors => Enumerable.Empty<GlyphDescriptor>();
     }
 
-    // todo: should be able to implement Return through latexspace.
     public class Space : Segment
     {
         public override double Width { get; }
         public override double Height { get; }
+        public override IEnumerable<GlyphDescriptor> GlyphDescriptors => Enumerable.Empty<GlyphDescriptor>();
 
         public Space(double width, double height = 0)
         {
@@ -244,51 +222,67 @@ namespace LatexEditor.Parser.Segments
         }
     }
 
-    public class NullSegment : Segment
-    {
-        public override double Width => Contents.Sum(ls => ls.Width);
-        public override double Height => Contents.Max(ls => ls.Height);
-
-        public NullSegment()
-        {
-        }
-
-        public NullSegment(IEnumerable<Segment> contents)
-        {
-            Contents.AddRange(contents);
-        }
-    }
-
     public class SupSub : Segment
     {
-        public override double Width => Contents.Max(s => s.Width);
-        public override double Height => Contents.Sum(s => s.Height) + .1;
+        public Segment Super { get; set; }
+        public Segment Sub { get; set; }
+        public override double Width => Math.Max(Super.Width, Sub.Width);
+        public override double Height => Super.Height + Sub.Height + .1;
 
         public SupSub(Segment super, Segment sub)
         {
-            Contents.Add(super);
-            Contents.Add(sub);
+            Super = super;
+            Super.Offset = new Point(0, 0.45);
+            Super.Size = 0.7;
+
+            Sub = sub;
+            Sub.Offset = new Point(0, -0.2);
+            Sub.Size = 0.7;
         }
 
         public override IEnumerable<GlyphDescriptor> GlyphDescriptors
         {
             get
             {
-                foreach (var sup in Contents[0].GlyphDescriptors)
+                foreach (var gd in Super.GlyphDescriptors)
+                    yield return Localized(gd);
+
+                foreach (var gd in Sub.GlyphDescriptors)
+                    yield return Localized(gd);
+            }
+        }
+    }
+
+    public class Run : Segment
+    {
+        public List<Segment> Contents;
+        public override double Width => Contents.Sum(ls => ls.Width);
+        public override double Height => Contents.Max(ls => ls.Height);
+
+        public Run(IEnumerable<Segment> contents = null)
+        {
+            Contents = contents?.ToList() ?? new List<Segment>();
+        }
+
+        public override IEnumerable<GlyphDescriptor> GlyphDescriptors
+        {
+            get
+            {
+                var x = 0d;
+                var y = 0d;
+
+                foreach (var seg in Contents)
                 {
-                    var cp = sup;
-                    cp.Offset.X += Offset.X;
-                    cp.Offset.Y += 0.45;
-                    cp.Size *= 0.7;
-                    yield return cp;
-                }
-                foreach (var sub in Contents[1].GlyphDescriptors)
-                {
-                    var cp = sub;
-                    cp.Offset.X += Offset.X;
-                    cp.Offset.Y -= 0.2;
-                    cp.Size *= 0.7;
-                    yield return cp;
+                    if (seg is Return)
+                    {
+                        x = 0;
+                        y -= 1;
+                        continue;
+                    }
+                    foreach (var gd in seg.GlyphDescriptors)
+                        yield return Localized(gd, x, y);
+
+                    x += seg.Width;
                 }
             }
         }

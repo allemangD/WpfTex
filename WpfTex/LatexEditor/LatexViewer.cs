@@ -43,7 +43,7 @@ namespace LatexEditor
 
 //            var seg = Segment.ToLatexSegment(LatexParser.Tokenize(Content));
 
-            var seg = new NullSegment(new SegmentCollection(LatexParser.Tokenize(Content)));
+            var seg = new Run(new SegmentCollection(LatexParser.Tokenize(Content)));
 
             var gds = seg.GlyphDescriptors.ToList();
 
