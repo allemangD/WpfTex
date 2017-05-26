@@ -77,7 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Parser\LatexParser.cs" />
-    <Compile Include="Parser\Segments\LatexSegment.cs" />
+    <Compile Include="Parser\Segments\Segment.cs" />
     <Compile Include="Parser\Lexer.cs" />
     <Compile Include="Parser\Token.cs" />
     <Compile Include="Parser\TokenDescriptor.cs" />

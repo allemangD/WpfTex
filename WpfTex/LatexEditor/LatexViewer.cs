@@ -41,7 +41,9 @@ namespace LatexEditor
         {
             if (string.IsNullOrEmpty(Content)) return;
 
-            var seg = LatexSegment.ToLatexSegment(LatexParser.Tokenize(Content));
+//            var seg = Segment.ToLatexSegment(LatexParser.Tokenize(Content));
+
+            var seg = new NullSegment(new SegmentCollection(LatexParser.Tokenize(Content)));
 
             var gds = seg.GlyphDescriptors.ToList();
 

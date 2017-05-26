@@ -7,15 +7,14 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        <local:LatexViewer FontSize="40">
-            e^{\pi i}=-1\quad\{\textrm{in the complex plane} \\\\
-
-            a^x+a^y=a^{x+y} \\
-            log \sub b x \sup {n} = n \, log_b x \\ <!--adding brackets double counts some space-->
-            log \sub b x \sup n = n \, log_{b} x \\
-
-            M^1_2 <!-- need to fix height calculations and adjust baseline accordingly -->
-
+        <local:LatexViewer FontSize="35">
+<!--            A^B_C \quad A_B^C      \\\\-->
+<!--            A^{B^C} \quad A^{B_C}  \\\\-->
+<!--            A_{B^C} \quad A_{B_C}  \\\\-->
+<!--            \\-->
+            a^b_c \quad a^{b}_{c} \\\\
+            a^{b^c}
+            
         </local:LatexViewer>
     </Grid>
 </Window>
